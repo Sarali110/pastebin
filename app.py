@@ -1,3 +1,23 @@
+import string
+
+class IDEncoder:
+    def __init__(self):
+        self.alphabet = string.ascii_letters + string.digits  # a-zA-Z0-9
+        self.base = len(self.alphabet)
+
+    def encode(self, num):
+        s = []
+        while num > 0:
+            s.append(self.alphabet[num % self.base])
+            num //= self.base
+        return ''.join(reversed(s)) or '0'
+
+    def decode(self, short_id):
+        num = 0
+        for char in short_id:
+            num = num * self.base + self.alphabet.index(char)
+        return num
+    
 from flask import Flask, request, redirect, jsonify, render_template
 import sqlite3
 import time
@@ -18,9 +38,8 @@ c.execute('''CREATE TABLE IF NOT EXISTS urls
 conn.commit()
 
 # Set up Redis
-r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+r = redis.from_url("https://console.upstash.com/redis/129165a4-46f6-4530-b2de-fe5fa5618d61?teamid=0")
 
-@app.route('/')
 def home():
     return render_template('index.html')
 
