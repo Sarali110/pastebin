@@ -40,23 +40,27 @@
         <button type="submit">Shorten</button>
     </form>
     <div id="result"></div>
-    <script>const form = document.getElementById('shorten-form');
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const url = document.getElementById('long-url').value;
-const response = await fetch('/shorten', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({ url })
-});
+    <script>
+        const form = document.getElementById('shorten-form');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('long-url').value;
+            const response = await fetch('/shorten', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
 
-if (!response.ok) {
-  const text = await response.text();  // This shows error content
-  throw new Error(`Server Error: ${text}`);
-}
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Server error:", errorText);
+                document.getElementById('result').innerHTML = `<span style="color: red">Server error: ${errorText}</span>`;
+                return;
+            }
 
-const data = await response.json();
-      document.getElementById('result').innerHTML = `Short URL: <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
-    };</script>
+            const data = await response.json();
+            document.getElementById('result').innerHTML = `Short URL: <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+        };
+    </script>
 </body>
 </html>
