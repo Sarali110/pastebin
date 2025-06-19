@@ -1,4 +1,4 @@
-import string
+﻿import string
 
 class IDEncoder:
     def __init__(self):
@@ -40,6 +40,7 @@ conn.commit()
 # Set up Redis
 r = redis.from_url("redis://default:AX-CAAIjcDExMjk5ODFlODVmMGE0YjdmYWJhYWIyMmE5MTk4M2FiMXAxMA@known-anemone-32642.upstash.io:6379", decode_responses=True)
 
+@app.route('/')  # ← THIS LINE IS MISSING
 def home():
     return render_template('index.html')
 
