@@ -3,6 +3,8 @@ from flask import Flask, request, redirect, jsonify, render_template
 import sqlite3
 import time
 import redis
+import traceback
+
 
 # --- Short ID Encoder ---
 class IDEncoder:
@@ -71,6 +73,7 @@ def shorten():
 
     except Exception as e:
         print(f"Error in /shorten: {e}")
+        traceback.print_exc()  # NEW LINE
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/<short_id>')
