@@ -5,7 +5,6 @@ import time
 import redis
 import traceback
 
-
 # --- Short ID Encoder ---
 class IDEncoder:
     def __init__(self):
@@ -52,19 +51,15 @@ def home():
     return render_template('index.html')
 
 @app.route('/shorten', methods=['POST'])
-@app.route('/shorten', methods=['POST'])
 def shorten():
     try:
-        print("---- Incoming Request ----")
-        print("Headers:", request.headers)
-        print("Body (raw):", request.data)
-        print("JSON (parsed):", request.get_json(force=True))
-
         data = request.get_json(force=True)
         if not data or 'url' not in data:
             return jsonify({'error': 'Missing "url" in request'}), 400
 
         long_url = data['url']
+        if not long_url.startswith(('http://', 'https://')):
+            long_url = 'http://' + long_url
         created_at = int(time.time())
 
         c.execute("INSERT INTO urls (long_url, created_at) VALUES (?, ?)", (long_url, created_at))
@@ -75,17 +70,14 @@ def shorten():
 
         r.set(short_id, long_url)
 
-        # Inside the shorten route
-        host_url = request.host_url  # e.g., https://your-app.onrender.com/
-        return jsonify({'short_url': f"{host_url}{short_id}"})
+        host_url = request.host_url.rstrip('/')  # Ensure no trailing slash
+        return jsonify({'short_url': f"{host_url}/{short_id}"})
 
     except Exception as e:
-        import traceback
         print("---- ERROR ----")
         print(f"Exception occurred: {e}")
         traceback.print_exc()
         return jsonify({'error': 'Internal server error'}), 500
-
 
 @app.route('/<short_id>')
 def redirect_url(short_id):
