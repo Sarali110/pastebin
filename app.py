@@ -52,9 +52,15 @@ def home():
     return render_template('index.html')
 
 @app.route('/shorten', methods=['POST'])
+@app.route('/shorten', methods=['POST'])
 def shorten():
     try:
-        data = request.get_json()
+        print("---- Incoming Request ----")
+        print("Headers:", request.headers)
+        print("Body (raw):", request.data)
+        print("JSON (parsed):", request.get_json(force=True))
+
+        data = request.get_json(force=True)
         if not data or 'url' not in data:
             return jsonify({'error': 'Missing "url" in request'}), 400
 
@@ -72,9 +78,12 @@ def shorten():
         return jsonify({'short_url': f"http://short.ly/{short_id}"})
 
     except Exception as e:
-        print(f"Error in /shorten: {e}")
-        traceback.print_exc()  # NEW LINE
+        import traceback
+        print("---- ERROR ----")
+        print(f"Exception occurred: {e}")
+        traceback.print_exc()
         return jsonify({'error': 'Internal server error'}), 500
+
 
 @app.route('/<short_id>')
 def redirect_url(short_id):
