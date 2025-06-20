@@ -75,7 +75,9 @@ def shorten():
 
         r.set(short_id, long_url)
 
-        return jsonify({'short_url': f"http://short.ly/{short_id}"})
+        # Inside the shorten route
+        host_url = request.host_url  # e.g., https://your-app.onrender.com/
+        return jsonify({'short_url': f"{host_url}{short_id}"})
 
     except Exception as e:
         import traceback
