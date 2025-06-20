@@ -42,7 +42,7 @@ conn.commit()
 
 # --- Redis Setup ---
 r = redis.from_url(
-    "redis://default:AX-CAAIjcDExMjk5ODFlODVmMGE0YjdmYWJhYWIyMmE5MTk4M2FiMXAxMA@known-anemone-32642.upstash.io:6379",
+    "rediss://default:AX-CAAIjcDExMjk5ODFlODVmMGE0YjdmYWJhYWIyMmE5MTk4M2FiMXAxMA@known-anemone-32642.upstash.io:6379",
     decode_responses=True
 )
 
