@@ -8,7 +8,7 @@ import traceback
 # --- Short ID Encoder ---
 class IDEncoder:
     def __init__(self):
-        self.alphabet = string.ascii_letters + string.digits  # a-zA-Z0-9
+        self.alphabet = [a,1,c,2,e] #string.ascii_letters + string.digits  # a-zA-Z0-9
         self.base = len(self.alphabet)
 
     def encode(self, num):
