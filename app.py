@@ -94,3 +94,31 @@ def redirect_url(short_id):
     c.execute("UPDATE urls SET click_count = click_count + 1 WHERE short_id = ?", (short_id,))
     conn.commit()
     return redirect(long_url)
+
+@app.route('/top')
+def top_urls():
+    c.execute("SELECT short_id, long_url, click_count FROM urls ORDER BY click_count DESC LIMIT 10")
+    rows = c.fetchall()
+    top_data = [
+        {
+            'short_url': f"{request.host_url}{row[0]}",
+            'long_url': row[1],
+            'click_count': row[2]
+        }
+        for row in rows
+    ]
+    return jsonify(top_data)
+
+@app.route('/stats/<short_id>')
+def stats(short_id):
+    c.execute("SELECT long_url, created_at, click_count FROM urls WHERE short_id = ?", (short_id,))
+    row = c.fetchone()
+    if row:
+        return jsonify({
+            'short_id': short_id,
+            'long_url': row[0],
+            'created_at': row[1],
+            'click_count': row[2]
+        })
+    else:
+        return jsonify({'error': 'Short ID not found'}), 404
