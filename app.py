@@ -8,7 +8,7 @@ import traceback
 # --- Short ID Encoder ---
 class IDEncoder:
     def __init__(self):
-        self.alphabet = ['a','1','c','2','e'] #string.ascii_letters + string.digits  # a-zA-Z0-9
+        self.alphabet = string.ascii_letters + string.digits  # a-zA-Z0-9
         self.base = len(self.alphabet)
 
     def encode(self, num):
@@ -29,12 +29,12 @@ app = Flask(__name__)
 encoder = IDEncoder()
 
 # --- SQLite Setup ---
-conn = sqlite3.connect('urls.db', check_same_thread=False)
+conn = sqlite3.connect('paste.db', check_same_thread=False)
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS urls
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               short_id TEXT UNIQUE,
-              long_url TEXT,
+              content TEXT,
               created_at INTEGER,
               click_count INTEGER DEFAULT 0)''')
 conn.commit()
@@ -50,25 +50,23 @@ r = redis.from_url(
 def home():
     return render_template('index.html')
 
-@app.route('/shorten', methods=['POST'])
-def shorten():
+@app.route('/paste', methods=['POST'])
+def paste():
     try:
         data = request.get_json(force=True)
-        if not data or 'url' not in data:
+        if not data or 'content' not in data:
             return jsonify({'error': 'Missing "url" in request'}), 400
 
-        long_url = data['url']
-        if not long_url.startswith(('http://', 'https://')):
-            long_url = 'http://' + long_url
+        content = data['content']
         created_at = int(time.time())
 
-        c.execute("INSERT INTO urls (long_url, created_at) VALUES (?, ?)", (long_url, created_at))
+        c.execute("INSERT INTO urls (content, created_at) VALUES (?, ?)", (content, created_at))
         new_id = c.lastrowid
         short_id = encoder.encode(new_id)
         c.execute("UPDATE urls SET short_id = ? WHERE id = ?", (short_id, new_id))
         conn.commit()
 
-        r.set(short_id, long_url)
+        r.set(short_id, content)
 
         host_url = request.host_url.rstrip('/')  # Ensure no trailing slash
         return jsonify({'short_url': f"{host_url}/{short_id}"})
@@ -81,44 +79,16 @@ def shorten():
 
 @app.route('/<short_id>')
 def redirect_url(short_id):
-    long_url = r.get(short_id)
-    if not long_url:
-        c.execute("SELECT long_url FROM urls WHERE short_id = ?", (short_id,))
+    content = r.get(short_id)
+    if not content:
+        c.execute("SELECT content FROM urls WHERE short_id = ?", (short_id,))
         row = c.fetchone()
         if row:
-            long_url = row[0]
-            r.set(short_id, long_url)
+            content = row[0]
+            r.set(short_id, content)
         else:
             return "Not Found", 404
 
     c.execute("UPDATE urls SET click_count = click_count + 1 WHERE short_id = ?", (short_id,))
     conn.commit()
-    return redirect(long_url)
-
-@app.route('/top')
-def top_urls():
-    c.execute("SELECT short_id, long_url, click_count FROM urls ORDER BY click_count DESC LIMIT 10")
-    rows = c.fetchall()
-    top_data = [
-        {
-            'short_url': f"{request.host_url}{row[0]}",
-            'long_url': row[1],
-            'click_count': row[2]
-        }
-        for row in rows
-    ]
-    return jsonify(top_data)
-
-@app.route('/stats/<short_id>')
-def stats(short_id):
-    c.execute("SELECT long_url, created_at, click_count FROM urls WHERE short_id = ?", (short_id,))
-    row = c.fetchone()
-    if row:
-        return jsonify({
-            'short_id': short_id,
-            'long_url': row[0],
-            'created_at': row[1],
-            'click_count': row[2]
-        })
-    else:
-        return jsonify({'error': 'Short ID not found'}), 404
+    return redirect(content)

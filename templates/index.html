@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Shortener</title>
+    <title>Paste bin </title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,18 +34,18 @@
     </style>
 </head>
 <body>
-    <h1>URL Shortener</h1>
+    <h1>Paste bin</h1>
     <form id="shorten-form">
-        <input type="text" id="long-url" placeholder="Enter long URL" required>
-        <button type="submit">Shorten</button>
+        <input type="text" id="content" placeholder="Enter the content" required>
+        <button type="submit">paste</button>
     </form>
     <div id="result"></div>
     <script>
-        const form = document.getElementById('shorten-form');
+        const form = document.getElementById('content-form');
         form.onsubmit = async (e) => {
             e.preventDefault();
-            const url = document.getElementById('long-url').value;
-            const response = await fetch('/shorten', {
+            const url = document.getElementById('content').value;
+            const response = await fetch('/paste', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url })
@@ -59,7 +59,7 @@
             }
 
             const data = await response.json();
-            document.getElementById('result').innerHTML = `Short URL: <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+            document.getElementById('result').innerHTML = `content : <a href="${data.content}" target="_blank">${data.content}</a>`;
         };
     </script>
 </body>
