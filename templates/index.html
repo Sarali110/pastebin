@@ -59,7 +59,9 @@
             }
 
             const data = await response.json();
-            document.getElementById('result').innerHTML = `content: <pre>${data.content}</pre>`;
-    </script>
+            document.getElementById('result').innerHTML = `content: <a href="${data.content}" target="_blank">${data.content}</a>`;
+        };  // <-- this line was missing
+    </script>  <!-- this line was missing too -->
+
 </body>
 </html>
