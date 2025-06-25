@@ -69,7 +69,7 @@ def paste():
         r.set(short_id, content)
 
         host_url = request.host_url.rstrip('/')  # Ensure no trailing slash
-        return jsonify({'content': f"{host_url}/{short_id}"})
+        return jsonify({'short_url': f"{host_url}/{short_id}"})
 
     except Exception as e:
         print("---- ERROR ----")
