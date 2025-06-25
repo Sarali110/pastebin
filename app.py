@@ -78,7 +78,7 @@ def paste():
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/<short_id>')
-def redirect_url(short_id):
+def show_content(short_id):
     content = r.get(short_id)
     if not content:
         c.execute("SELECT content FROM urls WHERE short_id = ?", (short_id,))
@@ -91,4 +91,15 @@ def redirect_url(short_id):
 
     c.execute("UPDATE urls SET click_count = click_count + 1 WHERE short_id = ?", (short_id,))
     conn.commit()
-    return redirect(content)
+
+    # ✅ Render the paste content directly in the page
+    return f"""
+        <html>
+        <head><title>Paste</title></head>
+        <body>
+            <h1>Paste Content</h1>
+            <pre>{content}</pre>
+        </body>
+        </html>
+    """
+
