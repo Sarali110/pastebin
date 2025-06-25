@@ -41,14 +41,14 @@
     </form>
     <div id="result"></div>
     <script>
-        const form = document.getElementById('content-form');
+        const form = document.getElementById('shorten-form');
         form.onsubmit = async (e) => {
             e.preventDefault();
-            const url = document.getElementById('content').value;
+            const content = document.getElementById('content').value;
             const response = await fetch('/paste', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
+                body: JSON.stringify({ content })
             });
 
             if (!response.ok) {
@@ -59,8 +59,7 @@
             }
 
             const data = await response.json();
-            document.getElementById('result').innerHTML = `content : <a href="${data.content}" target="_blank">${data.content}</a>`;
-        };
+            document.getElementById('result').innerHTML = `content: <pre>${data.content}</pre>`;
     </script>
 </body>
 </html>

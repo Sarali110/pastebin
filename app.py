@@ -55,7 +55,7 @@ def paste():
     try:
         data = request.get_json(force=True)
         if not data or 'content' not in data:
-            return jsonify({'error': 'Missing "url" in request'}), 400
+            return jsonify({'error': 'Missing "content" in request'}), 400
 
         content = data['content']
         created_at = int(time.time())
@@ -69,7 +69,7 @@ def paste():
         r.set(short_id, content)
 
         host_url = request.host_url.rstrip('/')  # Ensure no trailing slash
-        return jsonify({'short_url': f"{host_url}/{short_id}"})
+        return jsonify({'content': f"{host_url}/{short_id}"})
 
     except Exception as e:
         print("---- ERROR ----")
